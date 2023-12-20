@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>weather</title>
+</head>
+<style>
+    *{
+        padding: 0;
+        margin: 0;
+        justify-content: center;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    body{
+        background-color: black;
+        color: white;
+    }
+    .card{
+        padding: 10px;
+        margin-top: 20px;
+        margin-left: 100px;
+        background-color: blue;
+        border-radius: 30px;
+        text-align: center;
+        width: 90%;
+        max-width: 500px;
+    }
+    .search{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content:space-around;
+        margin-right: 50px;
+
+    }
+    .search input{
+        padding: 10px;
+        color: brown;
+        border: 2px black solid;
+        border-radius: 30px;
+        margin-top: 20px;
+        margin-left: 30px;
+        border: 0;
+        outline: 0;
+        flex: 1;
+        height: 50px;
+        font-weight: bold;
+    }
+    .search button{
+        height: 40px;
+        width: 40px;
+        margin-top: 10px;
+        color: white;
+        cursor: pointer;
+        background: transparent;  
+        border: 0;
+        outline: 0;
+        border-radius: 50%;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    .weather{
+        display: none;
+    }
+    .weather .weather-icon{
+        width: 257px;
+    
+    }
+    .weather h1{
+        font-size: 80px;
+        font-weight: 500;
+    }
+    .weather h2{
+        font-size: 40px;
+        font-weight: 400;
+    }
+    .row{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0px 20px;
+        margin: 50px 25px;
+        
+    }
+    .col{
+        display: flex;
+        text-align: left;
+        align-items: center;
+    }
+    .col img{
+        width: 40px;
+        margin-right: 15px;
+        
+    }
+    .humidity ,.wind{
+    font-size: 25px;
+        
+    }
+    .error{
+        color: black;
+        padding: 10px;
+        margin-left: 40px;
+        background-color: red;
+        text-align: left;
+        padding: 20px;
+        margin-right: 100px;
+        margin-left: 50px;
+        border-radius: 20px;
+        display: none;
+    }
+    .time{
+        color: black;
+        font-weight: bold;
+        padding: 10px;
+        margin-left: 150px;
+        text-align: center;
+        justify-content: center;
+    }
+    .extra{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
+<body>
+    <div class="card">
+        <div class="error"></div>
+        <div class="search">
+            <input type="text" placeholder="Enter city  name ">
+            <button><img src="images/search.png" ></button>        
+        </div>
+       <div class="extra">
+   
+            <div class="time">8:10 pm
+        </div>
+        
+       </div>
+        <div class="weather">
+            <img class="weather-icon" src="images/clear.png" >
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">Nuwakot</h2>
+            <div class="row">
+                <div class="col">
+                    <img src="images/humidity.png" >
+                    <div>
+                    <p class="humidity">50%</p>
+                    <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="images/wind.png" >
+                    <div>
+                    <p class="wind">22.2 km/hr</p>
+                    <p>Wind speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // api key 
+        const apikey = "835369f85bdea7672d552ca25ba05787 ";
+        // you have to be careful about units 
+        const apiurl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+        const searchBtn= document.querySelector(".search button");
+        const searchBox= document.querySelector(".search input");
+        const weathericon = document.querySelector(".weather-icon");
+        //
+        async function weatherUpdate(city){
+            const response = await fetch(apiurl + city + `&appid=${apikey}`);
+            var data = await response.json();
+
+            // check whether the city exits or not if not show error msg
+            if(response.status == 404){
+                document.querySelector(".error").style.display="block";
+                document.querySelector(".error").innerHTML= data.message;
+                document.querySelector(".weather").style.display="none";
+
+            }else{
+                document.querySelector(".weather").style.display="block";
+                document.querySelector(".error").style.display="none";
+            }
+            setTimeout(function() {
+    document.querySelector(".error").style.display = "none";
+}, 600);
+         // displaying data from json 
+            document.querySelector(".city").innerHTML= data.name;
+            document.querySelector(".temp").innerHTML= Math.round(data.main.temp) + "°C";
+            document.querySelector(".humidity").innerHTML= (data.main.humidity) + "%";
+            document.querySelector(".wind").innerHTML= (data.wind.speed) + "km/hr";
+
+            // change the weather icon acording to weather mood
+            if(data.weather[0].main == "Clouds"){
+                weathericon.src="images/clouds.png";
+            }
+            else if(data.weather[0].main == "Clear"){
+                weathericon.src="images/clear.png";
+            }
+            else if(data.weather[0].main == "Rain"){
+                weathericon.src="images/rain.png";
+            }
+            else if(data.weather[0].main == "Drizzle"){
+                weathericon.src="images/drizzle.png";
+            }
+            else if(data.weather[0].main == "Mist"){
+                weathericon.src="images/mist.png";
+            }
+        }
+        //pass the city if we click in search button 
+        searchBtn.addEventListener("click",()=>{
+            weatherUpdate(searchBox.value);
+        });
+
+        // Get the current date and time
+        var date = new Date();
+
+        // Function to update the time
+        function updateTime() {
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        var sec = date.getSeconds();
+        var time = "Time: " + hour + ":" + min + ":" + sec;
+
+        // Update the content of the element with the class "time"
+        document.querySelector(".time").innerHTML = time;
+    }
+
+    // Call updateTime every 1000 milliseconds (1 second)
+    setInterval(updateTime, 100);
+
+    // Initial call to set the initial time immediately
+    updateTime();
+
+
+
+
+        
+    </script>
+    
+</body>
+</html>
